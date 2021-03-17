@@ -1,19 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 plugins {
-    id("org.springframework.boot") version "2.4.3"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.4.30"
-    kotlin("plugin.spring") version "1.4.30"
-}
-
-group = "com.sakshitapp"
-version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-repositories {
-    mavenCentral()
+    id("org.springframework.boot")
+    kotlin("jvm")
+    kotlin("plugin.spring")
 }
 
 dependencies {
@@ -29,23 +17,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "1.8"
+tasks {
+    named("bootJar") {
+        enabled = false
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-tasks.withType<BootJar> {
-    enabled = false
-}
-
-tasks.withType<Jar> {
-    enabled = true
+    named("jar") {
+        enabled = true
+    }
 }
 
 configurations {

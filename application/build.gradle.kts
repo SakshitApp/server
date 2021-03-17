@@ -1,18 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-	id("org.springframework.boot") version "2.4.3"
-	id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	kotlin("jvm") version "1.4.30"
-	kotlin("plugin.spring") version "1.4.30"
-}
-
-group = "com.sakshitapp"
-version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-repositories {
-	mavenCentral()
+	id("org.springframework.boot")
+	kotlin("jvm")
+	kotlin("plugin.spring")
 }
 
 dependencies {
@@ -32,34 +21,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.springframework.security:spring-security-test")
-}
-
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "1.8"
-	}
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
-}
-
-tasks.register<Copy>("copyToLib") {
-	into("${rootProject.projectDir}/build/libs")
-	from("$buildDir/libs")
-	mustRunAfter(tasks.getByName("assemble"))
-}
-
-
-tasks.register("stage") {
-	dependsOn(tasks.getByName("assemble"))
-	dependsOn(tasks.getByName("clean"))
-	dependsOn(tasks.getByName("copyToLib"))
-}
-
-tasks.getByName("assemble") {
-	mustRunAfter(tasks.getByName("clean"))
 }
 
 configurations {
