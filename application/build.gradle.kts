@@ -45,6 +45,15 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+tasks.register("stage") {
+	dependsOn(tasks.getByName("build"))
+	dependsOn(tasks.getByName("clean"))
+}
+
+tasks.getByName("build") {
+	mustRunAfter(tasks.getByName("clean"))
+}
+
 configurations {
 	all {
 		exclude(module = "spring-boot-starter-tomcat")
