@@ -46,11 +46,11 @@ tasks.withType<Test> {
 }
 
 tasks.register("stage") {
-	dependsOn(tasks.getByName("build"))
+	dependsOn(tasks.getByName("assemble"))
 	dependsOn(tasks.getByName("clean"))
 }
 
-tasks.getByName("build") {
+tasks.getByName("assemble") {
 	mustRunAfter(tasks.getByName("clean"))
 }
 
