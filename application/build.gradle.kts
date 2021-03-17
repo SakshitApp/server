@@ -45,9 +45,17 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+tasks.register<Copy>("copyToLib") {
+	into("${rootProject.projectDir}/build/libs")
+	from("$buildDir/libs")
+	mustRunAfter(tasks.getByName("assemble"))
+}
+
+
 tasks.register("stage") {
 	dependsOn(tasks.getByName("assemble"))
 	dependsOn(tasks.getByName("clean"))
+	dependsOn(tasks.getByName("copyToLib"))
 }
 
 tasks.getByName("assemble") {

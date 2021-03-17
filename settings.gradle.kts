@@ -1,3 +1,3 @@
-rootProject.name = "API"
+rootProject.name = "application"
 include("base", "user", "course", "chat", "quiz")
 include("application")
