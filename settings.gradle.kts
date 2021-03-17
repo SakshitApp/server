@@ -1,3 +1,3 @@
 rootProject.name = "API"
-include("user", "course", "chat", "quiz")
+include("base", "user", "course", "chat", "quiz")
 include("application")
