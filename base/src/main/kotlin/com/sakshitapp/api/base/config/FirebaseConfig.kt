@@ -41,15 +41,16 @@ class FirebaseConfig {
     @Bean
     @Throws(IOException::class)
     fun firebaseDatabase(): FirebaseDatabase {
-        return FirebaseDatabase.getInstance()
+        return FirebaseDatabase.getInstance(getFirebaseApp())
     }
 
     @get:Throws(IOException::class)
     @get:Bean
     val database: Firestore
         get() {
+            val googleCredentials: String = System.getenv("GOOGLE_APP_CREDENTIALS")
             val firestoreOptions = FirestoreOptions.newBuilder()
-                    .setCredentials(GoogleCredentials.getApplicationDefault()).build()
+                    .setCredentials(GoogleCredentials.fromStream(googleCredentials.byteInputStream())).build()
             return firestoreOptions.service
         }
 
