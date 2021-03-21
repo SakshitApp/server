@@ -11,13 +11,13 @@ data class User(
         @Id
         val uid: String,
         val password: String = UUID.randomUUID().toString(),
-        val name: String? = null,
-        val photoURL: String? = null,
-        val email: String? = null,
-        val phoneNumber: String? = null,
-        val role: List<Role>? = null,
-        val fcmToken: String? = null,
-        val isActive: Boolean = true
+        var name: String? = null,
+        var photoURL: String? = null,
+        var email: String? = null,
+        var phoneNumber: String? = null,
+        var role: List<Role>? = null,
+        var fcmToken: String? = null,
+        var isActive: Boolean = true
 ) {
     fun getGrandAuthorities(): List<GrantedAuthority>? = role?.map { SimpleGrantedAuthority(it.name) }
 }

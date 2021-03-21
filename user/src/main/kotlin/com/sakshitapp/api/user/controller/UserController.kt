@@ -1,6 +1,5 @@
 package com.sakshitapp.api.user.controller
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.sakshitapp.api.base.model.Response
 import com.sakshitapp.api.base.model.User
 import com.sakshitapp.api.user.service.UserService
@@ -30,7 +29,7 @@ class UserController {
     @PatchMapping("")
     fun updateUser(
         authentication: Authentication,
-        @RequestBody user: Map<String, JsonNode>
+        @RequestBody user: Map<*, *>
     ): Mono<Response<User>> = Mono.just(authentication.credentials as User)
         .flatMap { userService.save(it, user) }
         .map { Response(data = it) }
