@@ -40,7 +40,8 @@ class UserService {
                 email = user.email,
                 name = user.name,
                 phoneNumber = user.phoneNumber,
-                photoURL = user.photoURL
+                photoURL = user.photoURL,
+                role = user.role
             )
         }
         .flatMap { userRepository.save(it) }
