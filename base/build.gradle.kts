@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    api(fileTree(mapOf("dir" to "${rootDir}/libs", "include" to listOf("*.jar"))))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.sakshitapp.api.base.model.User
 import com.sakshitapp.api.user.repository.UserRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono
 @Service
 class UserService {
 
+    @Autowired
     private lateinit var userRepository: UserRepository
 
     fun getCoreUserDetail(uid: String?): Mono<org.springframework.security.core.userdetails.UserDetails> = userRepository.findById(uid
@@ -24,20 +26,15 @@ class UserService {
 
     fun getCurrentUser(): Mono<User> {
         val securityContext: SecurityContext = SecurityContextHolder.getContext()
-        (securityContext?.authentication?.principal as? String)?.let {
-            return userRepository.findById(it)
-                .flatMap { user ->
-                    if (user.isActive) Mono.just(user) else userRepository.save(
-                        user.copy(
-                            isActive = true
-                        )
-                    )
-                }
+        (securityContext?.authentication?.credentials as? User)?.let {
+            return Mono.just(it)
         }
         return Mono.empty()
     }
 
-    fun save(user: com.sakshitapp.shared.model.User): Mono<User> = getCurrentUser()
+    fun add(user: User): Mono<User> = userRepository.save(user)
+
+    fun save(user: User): Mono<User> = getCurrentUser()
         .map {
             it.copy(
                 email = user.email,

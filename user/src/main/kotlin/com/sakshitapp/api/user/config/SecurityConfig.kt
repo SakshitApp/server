@@ -37,19 +37,21 @@ class SecurityConfig {
     @Bean
     fun filterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http.authorizeExchange()
-                .pathMatchers("/").permitAll()
-                .anyExchange().authenticated().and()
-                .exceptionHandling()
-                .authenticationEntryPoint { response, _ ->
-                    Mono.fromRunnable {
-                        response.response.statusCode = HttpStatus.UNAUTHORIZED
-                    }
+            .pathMatchers("/").permitAll()
+            .anyExchange().authenticated().and()
+            .exceptionHandling()
+            .authenticationEntryPoint { response, ex ->
+                println("AuthenticationEntryPoint Exception: $ex")
+                Mono.fromRunnable {
+                    response.response.statusCode = HttpStatus.UNAUTHORIZED
                 }
-                .accessDeniedHandler { response, _ ->
-                    Mono.fromRunnable {
-                        response.response.statusCode = HttpStatus.FORBIDDEN
-                    }
-                }.and()
+            }
+            .accessDeniedHandler { response, ex ->
+                println("AccessDeniedHandler Exception: $ex")
+                Mono.fromRunnable {
+                    response.response.statusCode = HttpStatus.FORBIDDEN
+                }
+            }.and()
                 .httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
