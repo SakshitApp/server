@@ -32,8 +32,8 @@ class MyAuthenticationManager : ReactiveAuthenticationManager {
                         Mono.just(
                             UsernamePasswordAuthenticationToken(
                                 user.uid,
-                                user,
-                                user.getGrandAuthorities()
+                                it,
+                                it.getGrandAuthorities()
                             )
                         )
                     }
