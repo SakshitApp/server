@@ -3,7 +3,7 @@ package com.sakshitapp.api.course
 import com.sakshitapp.api.base.model.Course
 import com.sakshitapp.api.base.model.Response
 import com.sakshitapp.api.base.model.User
-import com.sakshitapp.api.course.service.CourseService
+import com.sakshitapp.api.course.service.EditCourseService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -14,12 +14,12 @@ import reactor.core.publisher.Mono
 class EditCourseController {
 
     @Autowired
-    private lateinit var courseService: CourseService
+    private lateinit var editCourseService: EditCourseService
 
     @GetMapping("")
     fun getCourses(authentication: Authentication): Mono<Response<List<Course>>> =
         Mono.just(authentication.credentials as User)
-            .flatMap { courseService.get(it) }
+            .flatMap { editCourseService.get(it) }
             .map { Response(data = it) }
 
     @GetMapping("/{id}")
@@ -28,13 +28,13 @@ class EditCourseController {
         @PathVariable id: String
     ): Mono<Response<Course>> =
         Mono.just(authentication.credentials as User)
-            .flatMap { courseService.getEditable(it, id) }
+            .flatMap { editCourseService.getEditable(it, id) }
             .map { Response(data = it) }
 
     @GetMapping("/new")
     fun getNewCourse(authentication: Authentication): Mono<Response<Course>> =
         Mono.just(authentication.credentials as User)
-            .flatMap { courseService.getEditable(it, null) }
+            .flatMap { editCourseService.getEditable(it, null) }
             .map { Response(data = it) }
 
 
@@ -44,7 +44,7 @@ class EditCourseController {
         @RequestBody course: Course
     ): Mono<Response<Course>> =
         Mono.just(authentication.credentials as User)
-            .flatMap { courseService.save(it, course) }
+            .flatMap { editCourseService.save(it, course) }
             .map { Response(data = it) }
 
     @DeleteMapping("")
@@ -53,7 +53,7 @@ class EditCourseController {
         @RequestBody course: Course
     ): Mono<Response<Course>> =
         Mono.just(authentication.credentials as User)
-            .flatMap { courseService.delete(it, course) }
+            .flatMap { editCourseService.delete(it, course) }
             .map { Response(data = it) }
 
 

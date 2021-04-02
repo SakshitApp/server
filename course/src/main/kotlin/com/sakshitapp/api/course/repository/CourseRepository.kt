@@ -14,4 +14,7 @@ interface CourseRepository : ReactiveMongoRepository<Course, String> {
 
     @Query("{ 'uuid': ?0, 'user': ?1, 'state': { \$ne: 'DELETED' }}")
     fun findByIdAndUser(uuid: String, user: String): Mono<Course>
+
+    @Query("{ 'state': ?0 }")
+    fun findAllByState(state: String): Flux<Course>
 }
