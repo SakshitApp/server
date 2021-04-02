@@ -30,7 +30,12 @@ class EditCourseService {
         val c: Mono<Course> = (if (course != null) courseRepository.findByIdAndUser(
             course,
             user.uid
-        ) else courseRepository.save(Course(user = user.uid))).subscribeOn(Schedulers.parallel())
+        ) else courseRepository.save(
+            Course(
+                user = user.uid,
+                userName = user.name ?: "Unknown"
+            )
+        )).subscribeOn(Schedulers.parallel())
         val item: Mono<MutableList<Category>> =
             categoryRepository.findAll().subscribeOn(Schedulers.parallel()).collectList()
         val iteml: Mono<MutableList<Language>> =

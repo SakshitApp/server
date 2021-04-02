@@ -9,6 +9,7 @@ data class Course(
     @Id
     val uuid: String = UUID.randomUUID().toString(),
     val user: String? = null,
+    val userName: String = "Unknown",
     val title: String? = null,
     val image: String? = null,
     val summery: String? = null,
