@@ -60,8 +60,7 @@ class CourseService {
                         .flatMap {
                             subscriptionRepository.save(
                                 subscription.copy(
-                                    isLiked = true,
-                                    course = it
+                                    isLiked = true
                                 )
                             )
                         }
