@@ -5,7 +5,6 @@ import com.sakshitapp.api.base.model.RazorPayOrder
 import com.sakshitapp.api.base.model.Response
 import com.sakshitapp.api.base.model.User
 import com.sakshitapp.api.course.service.CartService
-import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -40,7 +39,7 @@ class CartController {
             .map { Response(data = it) }
 
     @GetMapping("/transaction")
-    fun start(authentication: Authentication): Mono<Response<JSONObject>> =
+    fun start(authentication: Authentication): Mono<Response<Map<String, Any?>>> =
         Mono.just(authentication.credentials as User)
             .flatMap { cartService.startTransaction(it) }
             .map { Response(data = it) }

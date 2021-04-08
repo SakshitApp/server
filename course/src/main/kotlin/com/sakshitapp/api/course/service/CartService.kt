@@ -4,15 +4,13 @@ import com.razorpay.Order
 import com.razorpay.RazorpayClient
 import com.razorpay.RazorpayException
 import com.sakshitapp.api.base.model.*
-import com.sakshitapp.api.course.repository.CartRepository
-import com.sakshitapp.api.course.repository.CourseRepository
-import com.sakshitapp.api.course.repository.SubscriptionRepository
-import com.sakshitapp.api.course.repository.TransactionRepository
+import com.sakshitapp.api.course.repository.*
 import com.sakshitapp.api.course.util.Signature
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 
 
 @Service
@@ -30,6 +28,9 @@ class CartService {
     @Autowired
     private lateinit var transactionRepository: TransactionRepository
 
+    @Autowired
+    private lateinit var pendingRepository: PendingRepository
+
     fun getCart(user: User): Mono<List<Cart>> =
         cartRepository.findByUser(user.uid)
             .collectList()
@@ -46,7 +47,7 @@ class CartService {
             .flatMap { cartRepository.delete(it) }
             .flatMap { getCart(user) }
 
-    fun startTransaction(user: User): Mono<JSONObject> =
+    fun startTransaction(user: User): Mono<Map<String, Any?>> =
         getCart(user)
             .flatMap {
                 transactionRepository.save(
@@ -74,7 +75,7 @@ class CartService {
                         val secret: String = System.getenv("RAZORPAY_SECRET")
                         val razorpayClient = RazorpayClient(key, secret)
                         val order: Order = razorpayClient.Orders.create(orderRequest)
-                        it.success(orderRequest)
+                        it.success(orderRequest.toMap())
                     } catch (e: RazorpayException) {
                         // Handle Exception
                         it.error(e)
@@ -92,7 +93,18 @@ class CartService {
             if (signature == data.razorpay_signature) {
                 val success = transactionRepository.findById(data.razorpay_order_id).block()
                 success?.courses?.forEach {
-                    subscriptionRepository.findById(user.uid, it.uuid)
+                    val t1 = courseRepository.findById(it.uuid)
+                        .flatMap { courseRepository.save(it.copy(subscriber = it.subscriber + 1)) }
+                        .subscribeOn(Schedulers.parallel())
+                    val t2 = pendingRepository.save(
+                        Pending(
+                            user = it.user ?: "",
+                            amount = it.price,
+                            transaction = success.uuid
+                        )
+                    )
+                        .subscribeOn(Schedulers.parallel())
+                    val t3 = subscriptionRepository.findById(user.uid, it.uuid)
                         .flatMap { subscriptionRepository.save(it.copy(transactionId = data.razorpay_order_id)) }
                         .switchIfEmpty(
                             subscriptionRepository.save(
@@ -102,7 +114,16 @@ class CartService {
                                     transactionId = data.razorpay_order_id
                                 )
                             )
-                        ).block()
+                        ).subscribeOn(Schedulers.parallel())
+                    Mono.zip(t1, t2, t3).block()
+                }
+                success?.let {
+                    transactionRepository.save(
+                        it.copy(
+                            state = TransactionState.COMPLETED,
+                            updatedOn = System.currentTimeMillis()
+                        )
+                    ).block()
                 }
                 getCart(user).flatMap { cartRepository.deleteAll(it) }.block()
                 sink.success(emptyList())
