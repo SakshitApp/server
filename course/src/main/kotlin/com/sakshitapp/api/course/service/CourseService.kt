@@ -1,7 +1,6 @@
 package com.sakshitapp.api.course.service
 
 import com.sakshitapp.api.base.model.*
-import com.sakshitapp.api.course.repository.CartRepository
 import com.sakshitapp.api.course.repository.CourseRepository
 import com.sakshitapp.api.course.repository.SubscriptionRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,9 +16,6 @@ class CourseService {
 
     @Autowired
     private lateinit var subscriptionRepository: SubscriptionRepository
-
-    @Autowired
-    private lateinit var cartRepository: CartRepository
 
     fun getHome(user: User): Mono<Home> {
         val c: Mono<List<Course>> = courseRepository.findAllByState(CourseState.ACTIVE.name)
@@ -66,13 +62,6 @@ class CourseService {
                         }
                 }
             }
-
-    fun addToCart(user: User, course: String): Mono<Cart> =
-        cartRepository.findById(user.uid, course)
-            .switchIfEmpty(
-                courseRepository.findById(course)
-                    .flatMap { cartRepository.save(Cart(user = user.uid, course = it)) }
-            )
 
     fun review(user: User, course: String, review: String): Mono<Course> =
         courseRepository.findById(course)

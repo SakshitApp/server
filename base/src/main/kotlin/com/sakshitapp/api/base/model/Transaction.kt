@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
 
-@Document(collection = "cart")
+@Document(collection = "transaction")
 data class Transaction(
     @Id
     val uuid: String = UUID.randomUUID().toString(),
