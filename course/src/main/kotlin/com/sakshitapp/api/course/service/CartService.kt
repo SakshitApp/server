@@ -44,8 +44,11 @@ class CartService {
 
     fun removeFromCart(user: User, course: String): Mono<List<Cart>> =
         cartRepository.findById(user.uid, course)
-            .flatMap { cartRepository.delete(it) }
-            .flatMap { getCart(user) }
+                .flatMap { cartRepository.delete(it) }
+                .flatMap { getCart(user) }
+                .switchIfEmpty(
+                        getCart(user)
+                )
 
     fun startTransaction(user: User): Mono<Map<String, Any?>> =
         getCart(user)
