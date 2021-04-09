@@ -70,7 +70,7 @@ class CartService {
                                 }
 
                                 val orderRequest = JSONObject().apply {
-                                    put("amount", ammount)
+                                    put("amount", ammount.toInt() * 100)
                                     put("currency", "INR")
                                     put("receipt", transaction.uuid)
                                 }
@@ -95,7 +95,7 @@ class CartService {
                         secret
                 )
                 if (signature == data.razorpay_signature) {
-                    transactionRepository.findById(data.razorpay_order_id)
+                    transactionRepository.findByOrder(data.razorpay_order_id)
                             .doOnNext {
                                 it.courses.forEach {
                                     val t1 = courseRepository.findById(it.uuid)
@@ -139,7 +139,7 @@ class CartService {
                     sink.error(Exception("Invalid Signature"))
                 }
             }.onErrorResume {
-                transactionRepository.findById(data.razorpay_order_id)
+                transactionRepository.findByOrder(data.razorpay_order_id)
                         .flatMap {
                             transactionRepository.save(
                                     it.copy(
