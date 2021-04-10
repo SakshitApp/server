@@ -57,12 +57,12 @@ class CourseService {
                         } else {
                             courseRepository.findById(course)
                                     .flatMap { courseRepository.save(it.copy(likes = it.likes + 1)) }
-                                    .flatMap {
+                                    .flatMap { course ->
                                         subscriptionRepository.save(
                                                 subscription.copy(
                                                         isLiked = true
                                                 )
-                                        )
+                                        ).flatMap { Mono.just(it.copy(course = course)) }
                                     }
                         }
                     }
@@ -81,6 +81,23 @@ class CourseService {
                                 )
                         )
                         courseRepository.save(it.copy(review = list))
+                    }
+
+    fun lessonDone(user: User, course: String, data: Map<String, String>): Mono<Subscription> =
+            subscriptionRepository.findById(user.uid, course)
+                    .flatMap { subscription ->
+                        val lesson = data["lesson"] ?: throw Exception("Invalid Params")
+                        if (subscription.progress.contains(lesson)) {
+                            courseRepository.findById(course)
+                                    .flatMap { Mono.just(subscription.copy(course = it)) }
+                        } else {
+                            subscriptionRepository.save(subscription.copy(progress = arrayListOf<String>().apply {
+                                addAll(subscription.progress)
+                                add(lesson)
+                            }))
+                                    .flatMap { courseRepository.findById(course) }
+                                    .flatMap { Mono.just(subscription.copy(course = it)) }
+                        }
                     }
 
 }

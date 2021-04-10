@@ -43,14 +43,24 @@ class CourseController {
         @PathVariable id: String,
         @RequestBody map: HashMap<String, *>
     ): Mono<Response<Course>> =
-        Mono.just(authentication.credentials as User)
-            .flatMap {
-                val review = map["review"] as? String
-                if (review != null) {
-                    courseService.review(it, id, review)
-                } else {
-                    Mono.error(Exception("Invalid Params"))
-                }
-            }
-            .map { Response(data = it) }
+            Mono.just(authentication.credentials as User)
+                    .flatMap {
+                        val review = map["review"] as? String
+                        if (review != null) {
+                            courseService.review(it, id, review)
+                        } else {
+                            Mono.error(Exception("Invalid Params"))
+                        }
+                    }
+                    .map { Response(data = it) }
+
+    @PostMapping("/done/{id}")
+    fun lessonDone(
+            authentication: Authentication,
+            @PathVariable id: String,
+            @RequestBody map: Map<String, String>
+    ): Mono<Response<Subscription>> =
+            Mono.just(authentication.credentials as User)
+                    .flatMap { courseService.lessonDone(it, id, map) }
+                    .map { Response(data = it) }
 }
