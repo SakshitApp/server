@@ -91,12 +91,13 @@ class CourseService {
                             courseRepository.findById(course)
                                     .flatMap { Mono.just(subscription.copy(course = it)) }
                         } else {
-                            subscriptionRepository.save(subscription.copy(progress = arrayListOf<String>().apply {
+                            val newSub = subscription.copy(progress = arrayListOf<String>().apply {
                                 addAll(subscription.progress)
                                 add(lesson)
-                            }))
+                            })
+                            subscriptionRepository.save(newSub)
                                     .flatMap { courseRepository.findById(course) }
-                                    .flatMap { Mono.just(subscription.copy(course = it)) }
+                                    .flatMap { Mono.just(newSub.copy(course = it)) }
                         }
                     }
 
