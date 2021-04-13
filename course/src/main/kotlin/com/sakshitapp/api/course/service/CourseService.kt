@@ -23,6 +23,10 @@ class CourseService {
                 .subscribeOn(Schedulers.parallel())
         val item: Mono<MutableList<Subscription>> =
                 subscriptionRepository.findAllByUser(user.uid)
+                        .flatMap { subs ->
+                            courseRepository.findById(subs.courseId)
+                                    .map { subs.copy(course = it) }
+                        }
                         .collectList()
                         .subscribeOn(Schedulers.parallel())
 
@@ -100,5 +104,19 @@ class CourseService {
                                     .flatMap { Mono.just(newSub.copy(course = it)) }
                         }
                     }
+
+    fun search(user: User, search: String): Mono<List<Course>> {
+        val c: Mono<List<Course>> = courseRepository.searchByState(search, CourseState.ACTIVE.name)
+                .collectList()
+                .subscribeOn(Schedulers.parallel())
+        val item: Mono<List<Course>> = courseRepository.searchByUser(search, user.uid)
+                .collectList()
+                .subscribeOn(Schedulers.parallel())
+
+        return Mono.zip(c, item)
+                .flatMap { touple ->
+                    Mono.just(touple.t1 + touple.t2)
+                }
+    }
 
 }

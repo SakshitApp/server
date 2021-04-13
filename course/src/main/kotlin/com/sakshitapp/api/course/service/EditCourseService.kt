@@ -4,6 +4,7 @@ import com.sakshitapp.api.base.model.*
 import com.sakshitapp.api.course.repository.CategoryRepository
 import com.sakshitapp.api.course.repository.CourseRepository
 import com.sakshitapp.api.course.repository.LanguageRepository
+import com.sakshitapp.api.course.repository.SubscriptionRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -17,24 +18,39 @@ class EditCourseService {
     private lateinit var courseRepository: CourseRepository
 
     @Autowired
+    private lateinit var subscriptionRepository: SubscriptionRepository
+
+    @Autowired
     private lateinit var categoryRepository: CategoryRepository
 
     @Autowired
     private lateinit var languageRepository: LanguageRepository
 
-    fun get(user: User): Mono<List<Course>> =
-        courseRepository.findAllByUser(user.uid)
-            .collectList()
+    fun get(user: User): Mono<Home> {
+        val c: Mono<List<Course>> = courseRepository.findAllByUser(user.uid)
+                .collectList()
+        val item: Mono<MutableList<Subscription>> =
+                subscriptionRepository.findAllByUser(user.uid)
+                        .collectList()
+                        .subscribeOn(Schedulers.parallel())
+
+        return Mono.zip(c, item)
+                .flatMap { touple ->
+                    Mono.just(Home(subscribed = touple.t2.map { subs ->
+                        subs.copy(course = touple.t1.findLast { it.uuid == subs.courseId })
+                    }, courses = touple.t1))
+                }
+    }
 
     fun getEditable(user: User, course: String?): Mono<Course> {
         val c: Mono<Course> = (if (course != null) courseRepository.findByIdAndUser(
-            course,
-            user.uid
+                course,
+                user.uid
         ) else courseRepository.save(
-            Course(
-                user = user.uid,
-                userName = user.name ?: "Unknown"
-            )
+                Course(
+                        user = user.uid,
+                        userName = user.name ?: "Unknown"
+                )
         )).subscribeOn(Schedulers.parallel())
         val item: Mono<MutableList<Category>> =
             categoryRepository.findAll().subscribeOn(Schedulers.parallel()).collectList()

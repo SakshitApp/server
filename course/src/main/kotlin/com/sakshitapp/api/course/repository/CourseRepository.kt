@@ -17,4 +17,10 @@ interface CourseRepository : ReactiveMongoRepository<Course, String> {
 
     @Query("{ 'state': ?0 }")
     fun findAllByState(state: String): Flux<Course>
+
+    @Query("{ \$text: { \$search: ?0 }, 'state': ?1 }")
+    fun searchByState(text: String, state: String): Flux<Course>
+
+    @Query("{ \$text: { \$search: ?0 }, 'user': ?1 }")
+    fun searchByUser(text: String, user: String): Flux<Course>
 }

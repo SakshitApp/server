@@ -15,33 +15,33 @@ class CourseController {
 
     @GetMapping("")
     fun getCourses(authentication: Authentication): Mono<Response<Home>> =
-        Mono.just(authentication.credentials as User)
-            .flatMap { courseService.getHome(it) }
-            .map { Response(data = it) }
+            Mono.just(authentication.credentials as User)
+                    .flatMap { courseService.getHome(it) }
+                    .map { Response(data = it) }
 
     @GetMapping("/{id}")
     fun getCourse(
-        authentication: Authentication,
-        @PathVariable id: String
+            authentication: Authentication,
+            @PathVariable id: String
     ): Mono<Response<Subscription>> =
-        Mono.just(authentication.credentials as User)
-            .flatMap { courseService.get(it, id) }
-            .map { Response(data = it) }
+            Mono.just(authentication.credentials as User)
+                    .flatMap { courseService.get(it, id) }
+                    .map { Response(data = it) }
 
     @PostMapping("/like/{id}")
     fun like(
-        authentication: Authentication,
-        @PathVariable id: String
+            authentication: Authentication,
+            @PathVariable id: String
     ): Mono<Response<Subscription>> =
-        Mono.just(authentication.credentials as User)
-            .flatMap { courseService.like(it, id) }
-            .map { Response(data = it) }
+            Mono.just(authentication.credentials as User)
+                    .flatMap { courseService.like(it, id) }
+                    .map { Response(data = it) }
 
     @PostMapping("/review/{id}")
     fun review(
-        authentication: Authentication,
-        @PathVariable id: String,
-        @RequestBody map: HashMap<String, *>
+            authentication: Authentication,
+            @PathVariable id: String,
+            @RequestBody map: HashMap<String, *>
     ): Mono<Response<Course>> =
             Mono.just(authentication.credentials as User)
                     .flatMap {
@@ -62,5 +62,14 @@ class CourseController {
     ): Mono<Response<Subscription>> =
             Mono.just(authentication.credentials as User)
                     .flatMap { courseService.lessonDone(it, id, map) }
+                    .map { Response(data = it) }
+
+    @GetMapping("/search")
+    fun search(
+            authentication: Authentication,
+            @RequestBody text: String
+    ): Mono<Response<List<Course>>> =
+            Mono.just(authentication.credentials as User)
+                    .flatMap { courseService.search(it, text) }
                     .map { Response(data = it) }
 }
