@@ -5,6 +5,7 @@ import com.sakshitapp.api.course.repository.CourseRepository
 import com.sakshitapp.api.course.repository.SubscriptionRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
@@ -106,17 +107,11 @@ class CourseService {
                     }
 
     fun search(user: User, search: String): Mono<List<Course>> {
-        val c: Mono<List<Course>> = courseRepository.searchByState(search, CourseState.ACTIVE.name)
-                .collectList()
-                .subscribeOn(Schedulers.parallel())
-        val item: Mono<List<Course>> = courseRepository.searchByUser(search, user.uid)
-                .collectList()
-                .subscribeOn(Schedulers.parallel())
+        val c: Flux<Course> = courseRepository.searchByState(search, CourseState.ACTIVE.name)
+        val item: Flux<Course> = courseRepository.searchByUser(search, user.uid)
 
-        return Mono.zip(c, item)
-                .flatMap { touple ->
-                    Mono.just(touple.t1 + touple.t2)
-                }
+        return Flux.merge(c, item)
+                .collectList()
     }
 
 }
