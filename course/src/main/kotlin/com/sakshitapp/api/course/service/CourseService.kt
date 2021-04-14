@@ -5,6 +5,7 @@ import com.sakshitapp.api.course.repository.CourseRepository
 import com.sakshitapp.api.course.repository.SubscriptionRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
@@ -105,9 +106,12 @@ class CourseService {
                         }
                     }
 
-    fun search(user: User, search: String): Mono<List<Course>> =
-            courseRepository.searchByState(search, CourseState.ACTIVE.name)
-                    .collectList()
-                    .doOnEach { print("Data: $it") }
+    fun search(user: User, search: String): Mono<List<Course>> {
+        val c: Flux<Course> = courseRepository.searchByState(search, CourseState.ACTIVE.name)
+        val item: Flux<Course> = courseRepository.searchByUser(search, user.uid)
+
+        return Flux.merge(c, item)
+                .collectList()
+    }
 
 }
