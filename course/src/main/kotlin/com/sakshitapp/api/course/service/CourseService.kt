@@ -108,5 +108,6 @@ class CourseService {
     fun search(user: User, search: String): Mono<List<Course>> =
             courseRepository.searchByState(search, CourseState.ACTIVE.name)
                     .collectList()
+                    .doOnEach { print("Data: $it") }
 
 }

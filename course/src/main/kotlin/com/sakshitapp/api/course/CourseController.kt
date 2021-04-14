@@ -64,13 +64,14 @@ class CourseController {
                     .flatMap { courseService.lessonDone(it, id, map) }
                     .map { Response(data = it) }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     fun search(
             authentication: Authentication,
             @RequestBody data: Map<String, String>
     ): Mono<Response<List<Course>>> =
             Mono.just(authentication.credentials as User)
                     .flatMap {
+                        println("search: $data $it")
                         courseService.search(it, data["text"] ?: throw Exception("Invalid Params"))
                     }
                     .map { Response(data = it) }
