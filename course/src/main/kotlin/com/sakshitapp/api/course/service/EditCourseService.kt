@@ -69,7 +69,7 @@ class EditCourseService {
         val courses: Mono<Course> = courseRepository.findById(course.uuid)
                 .flatMap {
                     if (it.state != course.state && course.state == CourseState.ACTIVE) {
-                        notificationService.sendNotification("New Course", "New course has been created by ${user.name}", "https://firebasestorage.googleapis.com/v0/b/sakshit-app-dev.appspot.com/o/system%2Fcourses-icon-15359.png?alt=media&token=6f253716-3901-496f-a037-5de563a8ac3a", course.uuid, RedirectType.COURSE, null)
+                        notificationService.sendNotification("New Course", "New course has been created by ${user.name ?: "Unknown"}", "https://firebasestorage.googleapis.com/v0/b/sakshit-app-dev.appspot.com/o/system%2Fcourses-icon-15359.png?alt=media&token=6f253716-3901-496f-a037-5de563a8ac3a", course.uuid, RedirectType.COURSE, null)
                     } else {
                         Mono.just(Notification())
                     }

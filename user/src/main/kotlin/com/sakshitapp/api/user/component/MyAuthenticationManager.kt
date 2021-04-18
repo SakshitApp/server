@@ -45,10 +45,10 @@ class MyAuthenticationManager : ReactiveAuthenticationManager {
     }
 
     private fun firebaseTokenToUserDto(decodedToken: FirebaseToken): User = User(
-        uid = decodedToken.uid,
-        name = decodedToken.name,
-        photoURL = decodedToken.picture,
-        email = decodedToken.email,
-        phoneNumber = decodedToken.tenantId
+            uid = decodedToken.uid,
+            name = decodedToken.name ?: decodedToken.email?.split("@")?.get(0),
+            photoURL = decodedToken.picture,
+            email = decodedToken.email,
+            phoneNumber = decodedToken.tenantId
     )
 }
