@@ -62,6 +62,7 @@ class ConfigService {
 
     fun save(user: User, config: Config): Mono<Config> =
             configRepository.save(config.copy(userId = user.uid, user = null))
+                    .flatMap { Mono.just(it.copy(user = user)) }
 
     fun redeem(user: User): Mono<String> =
             pendingRepository.findAllByUser(user.uid)

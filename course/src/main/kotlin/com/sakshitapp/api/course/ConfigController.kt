@@ -25,7 +25,7 @@ class ConfigController {
                     .map { Response(data = it) }
 
     @PostMapping("/config")
-    fun end(
+    fun save(
             authentication: Authentication,
             @RequestBody data: Config
     ): Mono<Response<Config>> =
