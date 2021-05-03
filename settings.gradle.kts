@@ -1,3 +1,3 @@
-rootProject.name = "API"
-include("user", "course", "chat", "quiz")
+rootProject.name = "sakshitapp"
+include("base", "user", "course", "chat", "quiz")
 include("application")
